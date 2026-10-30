@@ -4,241 +4,328 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Automation ROI Calculator</title>
-<meta name="description" content="Estimate the hours and money a team saves by automating one repetitive task.">
+<meta name="description" content="See the hours and money a team saves by automating one repetitive task, with a payback period and an email-ready summary.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cal+Sans&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Cal.com style: monochrome, one blue accent, pill buttons, soft cards on paper. */
   :root {
-    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #f0f3f7; --text: #152232; --muted: #5d6b7b; --border: #dfe4ea;
-    --primary: #1f3a5f; --primary-ink: #ffffff; --primary-soft: #e7eef7;
-    --good: #0e7a55; --good-soft: #e3f3ec; --warn: #a15c07; --warn-soft: #fdf1df; --changed: #fff1b8;
-    --radius: 12px; --shadow: 0 1px 2px rgba(16,24,40,.05), 0 4px 16px rgba(16,24,40,.06);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0e131a; --surface: #151c25; --surface-2: #1b2430; --text: #e5eaf0; --muted: #98a5b4; --border: #27323f;
-      --primary: #9dbce3; --primary-ink: #0e131a; --primary-soft: #1d2a3a;
-      --good: #53c79a; --good-soft: #15302a; --warn: #e7a54a; --warn-soft: #33270f; --changed: #4b3f10; --shadow: none;
-    }
+    --ink: #101010; --graphite: #242424; --slate: #6b7280; --stone: #898989; --silver: #e5e7eb;
+    --paper: #f4f4f4; --white: #ffffff; --blue: #0099ff; --info: #eff6fe; --line: #e2e2e2; --mark: #c4c4c4;
+    --sh-card: rgba(36,36,36,.05) 0 4px 8px 0;
+    --sh-ring: rgba(19,19,22,.7) 0 1px 5px -4px, rgba(34,42,53,.08) 0 0 0 1px, rgba(34,42,53,.05) 0 4px 8px 0;
+    --sh-chip: rgba(0,0,0,.1) 0 1px 3px 0, rgba(0,0,0,.06) 0 0 2px 0;
+    --sh-press: rgba(255,255,255,.15) 0 2px 0 0 inset;
+    --display: "Cal Sans", Poppins, ui-sans-serif, system-ui, sans-serif;
+    --ui: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 15px; }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-  header.top { border-bottom: 1px solid var(--border); background: var(--surface); }
-  .top .wrap { display: flex; align-items: center; justify-content: space-between; min-height: 56px; gap: 12px; flex-wrap: wrap; }
-  .brand { font-weight: 700; color: var(--text); text-decoration: none; font-size: 14px; }
-  .brand span { color: var(--muted); font-weight: 500; }
-  nav.tools { display: flex; gap: 4px; flex-wrap: wrap; }
-  nav.tools a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; }
-  nav.tools a:hover { color: var(--text); }
-  nav.tools a[aria-current] { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
-  .hero { padding: 40px 0 24px; }
-  .hero h1 { font-size: 32px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.5px; }
-  .hero p { margin: 0; color: var(--muted); font-size: 17px; max-width: 660px; }
-  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
-  .badge { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
-  .step { font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
-  .card h2 { font-size: 18px; margin: 0 0 14px; }
-  .btn { font: inherit; font-weight: 600; font-size: 14px; border-radius: 8px; padding: 10px 16px; border: 1px solid transparent; cursor: pointer; }
-  .btn.primary { background: var(--primary); color: var(--primary-ink); }
-  .btn.ghost { background: transparent; border-color: var(--border); color: var(--text); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
-  .stat { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
-  .stat .n { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
-  .stat .l { font-size: 13px; color: var(--muted); }
-  .muted { color: var(--muted); }
-  footer { padding: 32px 0 48px; color: var(--muted); font-size: 13px; }
-  footer a { color: var(--primary); }
+  [hidden] { display: none !important; }
+  html { color-scheme: light; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--graphite); font: 300 16px/1.5 var(--ui); letter-spacing: -0.19px; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button, input, select { font: inherit; letter-spacing: inherit; color: inherit; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 400; color: var(--graphite); margin: 0; }
+  b { font-weight: 500; color: var(--graphite); }
+  .chev { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-  .grid .card { margin-bottom: 0; }
-  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
-  .grid .stats { grid-template-columns: 1fr 1fr; }
-  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .chip { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); cursor: pointer; }
-  .chip[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
-  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-  input, select { font: inherit; font-weight: 400; width: 100%; margin-top: 4px; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
-  input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
-  .combo { display: flex; gap: 6px; }
-  .combo select { width: auto; flex: 0 0 auto; }
-  .big { background: var(--good-soft); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
-  .big .n { font-size: 40px; font-weight: 700; color: var(--good); letter-spacing: -1px; line-height: 1.1; }
-  .big .l { color: var(--muted); }
-  .bars { margin: 4px 0 16px; }
-  .bar { display: grid; grid-template-columns: 70px 1fr 90px; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 6px; }
-  .bar .track { background: var(--surface-2); border-radius: 6px; height: 14px; overflow: hidden; }
-  .bar .fill { height: 100%; border-radius: 6px; background: var(--muted); transition: width .3s; }
-  .bar.after .fill { background: var(--good); }
-  .bar .v { text-align: right; font-variant-numeric: tabular-nums; }
-  .warn { background: var(--warn-soft); color: var(--warn); padding: 10px 12px; border-radius: 8px; font-size: 13px; }
-  .summary { background: var(--surface-2); border-radius: 8px; padding: 12px; font-size: 14px; margin: 12px 0 0; }
-  .how ul { margin: 0; padding-left: 18px; }
-  .how li { margin-bottom: 6px; }
+  /* Drafting frame: faint guide lines with a + where they cross */
+  .band { border-bottom: 1px solid var(--line); }
+  .frame { position: relative; width: min(1200px, 100% - 32px); margin: 0 auto; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .frame::before, .frame::after { content: ""; position: absolute; bottom: -5px; width: 9px; height: 9px; z-index: 1;
+    background: linear-gradient(var(--mark), var(--mark)) center / 9px 1px no-repeat, linear-gradient(var(--mark), var(--mark)) center / 1px 9px no-repeat; }
+  .frame::before { left: -5px; }
+  .frame::after { right: -5px; }
+  .pad { padding: 24px; }
+  .section { padding: 96px 48px; }
+
+  /* Header */
+  .bar { display: flex; align-items: center; gap: 24px; min-height: 64px; padding: 0 24px; }
+  .wordmark { font-family: var(--display); font-size: 22px; letter-spacing: .2px; color: var(--ink); text-decoration: none; }
+  .nav { display: flex; gap: 2px; margin: 0 auto; }
+  .nav a { font-size: 14px; font-weight: 400; letter-spacing: -.2px; color: var(--slate); text-decoration: none; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+  .nav a:hover { color: var(--graphite); }
+  .nav a[aria-current] { color: var(--ink); font-weight: 500; }
+  .btn-rect { display: inline-flex; align-items: center; gap: 4px; background: var(--ink); color: #fff; text-decoration: none; font-size: 14px; font-weight: 500; padding: 7px 10px 7px 14px; border-radius: 8px; box-shadow: var(--sh-press); }
+  .btn-rect:hover { background: #2a2a2a; }
+
+  /* Buttons and small controls */
+  .pill { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 9999px; padding: 10px 20px; font-size: 14px; font-weight: 500; letter-spacing: -.2px; text-decoration: none; cursor: pointer; transition: background .15s; }
+  .pill.ink { background: var(--ink); color: #fff; box-shadow: var(--sh-press); }
+  .pill.ink:hover { background: #2a2a2a; }
+  .pill.soft { background: var(--paper); color: var(--graphite); }
+  .pill.soft:hover { background: #ebebeb; }
+  .tag { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 400; letter-spacing: -.24px; color: var(--graphite); background: #fff; border-radius: 9999px; padding: 3px 8px 3px 10px; text-decoration: none; box-shadow: rgba(34,42,53,.1) 0 0 0 1px, rgba(34,42,53,.05) 0 2px 4px 0; }
+  .seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--paper); border-radius: 8px; flex: none; }
+  .seg > * { border: 0; background: transparent; border-radius: 6px; padding: 5px 10px; font-size: 13px; font-weight: 400; color: var(--slate); cursor: pointer; white-space: nowrap; }
+  .seg > [aria-checked="true"] { background: #fff; color: var(--ink); font-weight: 500; box-shadow: var(--sh-chip); }
+  .fine { font-size: 12px; letter-spacing: -.24px; color: var(--slate); }
+  .note { margin: 14px 0 0; font-size: 13.5px; background: var(--info); border-radius: 8px; padding: 10px 12px; box-shadow: inset 2px 0 0 var(--blue); }
+
+  /* Hero: the result lives on the left and updates as you type */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; background: #fff; border-radius: 12px; box-shadow: var(--sh-card); padding: 56px; }
+  .hero h1 { font-size: clamp(34px, 4vw, 46px); line-height: 1.1; letter-spacing: .46px; margin: 20px 0 12px; }
+  .lede { color: var(--slate); max-width: 44ch; margin: 0; }
+  .big { font-family: var(--display); font-size: clamp(56px, 7vw, 88px); line-height: 1; letter-spacing: .8px; color: var(--ink); margin-top: 36px; }
+  .big small { font-size: .4em; letter-spacing: .3px; color: var(--graphite); }
+  .big-sub { margin: 8px 0 0; color: var(--slate); }
+  .quote { background: var(--paper); border-radius: 8px; padding: 12px 14px; font-size: 14px; margin: 24px 0 0; }
+  .row-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+
+  /* Widget: the inputs, styled like Cal's booking card */
+  .widget { background: #fff; border-radius: 12px; box-shadow: var(--sh-ring); padding: 24px; }
+  .w-head { display: flex; gap: 12px; align-items: center; }
+  .ico { width: 40px; height: 40px; border-radius: 9999px; background: var(--paper); display: grid; place-items: center; flex: none; }
+  .ico svg { width: 20px; height: 20px; fill: none; stroke: var(--graphite); stroke-width: 1.4; stroke-linecap: round; }
+  .w-kicker { font-size: 13px; color: var(--slate); letter-spacing: -.2px; }
+  .w-title { font-size: 20px; line-height: 1.3; letter-spacing: .2px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 20px; }
+  .presets button { border: 0; border-radius: 9999px; padding: 5px 12px; font-size: 13px; font-weight: 400; background: var(--paper); color: var(--graphite); cursor: pointer; }
+  .presets button:hover { background: #ebebeb; }
+  .presets button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; border-top: 1px solid var(--silver); margin: 0 -24px; padding: 20px 24px 0; }
+  .form label, .form .field { display: block; font-size: 13px; font-weight: 500; letter-spacing: -.2px; }
+  .form .full { grid-column: 1 / -1; }
+  .form input { display: block; width: 100%; min-width: 0; margin-top: 6px; background: #fff; border: 1px solid var(--silver); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 400; }
+  .form input:focus { outline: none; border-color: var(--graphite); box-shadow: 0 0 0 3px rgba(16,16,16,.08); }
+  .combo { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .combo input { margin-top: 0; }
+
+  /* Sections */
+  .h-lg { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: .48px; text-align: center; }
+  .sub { text-align: center; color: var(--slate); max-width: 600px; margin: 14px auto 0; }
+  .panel { background: #fff; border-radius: 12px; box-shadow: var(--sh-card); margin-top: 40px; overflow: hidden; }
+  .breakdown { display: grid; grid-template-columns: 1.25fr 1fr; }
+  .dl { margin: 0; }
+  .dl div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--silver); }
+  .dl div:last-child { border-bottom: 0; }
+  .dl dt { color: var(--slate); font-size: 15px; }
+  .dl dd { margin: 0; font-family: var(--display); font-size: 26px; letter-spacing: .26px; color: var(--ink); white-space: nowrap; }
+  .bars { padding: 24px; border-left: 1px solid var(--silver); display: flex; flex-direction: column; justify-content: center; }
+  .bars h3 { font-family: var(--ui); font-weight: 500; font-size: 14px; letter-spacing: -.2px; }
+  .hbar { display: grid; grid-template-columns: 80px 1fr 70px; gap: 12px; align-items: center; font-size: 14px; margin-top: 16px; }
+  .hbar .rail { height: 10px; background: var(--paper); border-radius: 9999px; overflow: hidden; }
+  .hbar .fill { height: 100%; border-radius: 9999px; background: var(--ink); transition: width .3s; }
+  .hbar.after .fill { background: var(--stone); }
+  .hbar .v { text-align: right; font-weight: 400; font-variant-numeric: tabular-nums; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; font-weight: 400; }
+  th, td { padding: 14px 24px; border-bottom: 1px solid var(--silver); text-align: left; vertical-align: top; }
+  th { background: #fafafa; font-weight: 500; font-size: 12.5px; color: var(--slate); }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { font-weight: 500; white-space: nowrap; }
+  td:last-child { color: var(--slate); font-weight: 300; }
+
+  footer .bar { justify-content: space-between; flex-wrap: wrap; font-size: 13px; color: var(--slate); letter-spacing: -.2px; }
+  footer .bar a { color: var(--slate); text-decoration: none; margin-left: 16px; }
+  footer .bar a:hover { color: var(--ink); }
+
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; padding: 32px 24px; gap: 36px; }
+    .breakdown { grid-template-columns: 1fr; }
+    .bars { border-left: 0; border-top: 1px solid var(--silver); }
+    .section { padding: 64px 16px; }
+  }
+  @media (max-width: 720px) {
+    .bar { flex-wrap: wrap; gap: 8px 16px; padding: 12px 16px; }
+    .nav { order: 3; width: 100%; margin: 0 -10px; overflow-x: auto; }
+    .btn-rect { margin-left: auto; }
+    .pad { padding: 12px; }
+    th, td { padding: 12px 16px; }
+    td:first-child { white-space: normal; }
+  }
+  @media (max-width: 480px) { .form { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="https://www.linkedin.com/in/afiq-izzudin-27aaa936b">Afiq Izzudin <span>/ Office Toolkit</span></a>
-    <nav class="tools" aria-label="Tools">
+<header class="band">
+  <div class="frame bar">
+    <a class="wordmark" href="https://www.linkedin.com/in/afiq-izzudin-27aaa936b">Afiq Izzudin</a>
+    <nav class="nav" aria-label="Office Toolkit">
       <a href="../excel-data-cleaner/">Data Cleaner</a>
       <a href="../excel-report-merger/">Report Merger</a>
       <a href="../automation-roi-calculator/" aria-current="page">ROI Calculator</a>
     </nav>
+    <a class="btn-rect" href="https://github.com/Afiqizzudinnn/automation-roi-calculator">View code <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></a>
   </div>
 </header>
 
-<main class="wrap">
-  <section class="hero">
-    <h1>Automation ROI Calculator</h1>
-    <p>Is this task worth automating? Enter how long it takes today and see the hours and money your team gets back every year.</p>
-    <div class="badges"><span class="badge">Free</span><span class="badge">No sign-up</span><span class="badge">Nothing leaves your browser</span></div>
+<main>
+  <section class="band">
+    <div class="frame pad">
+      <div class="hero">
+        <div aria-live="polite">
+          <a class="tag" href="https://github.com/Afiqizzudinnn/automation-roi-calculator">Free and open source <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></a>
+          <h1>Find out what a boring task really costs</h1>
+          <p class="lede">Enter how long it takes now and after automation. Everything on this page updates as you type.</p>
+          <div class="big"><span id="rHours">0</span><small> hours</small></div>
+          <p class="big-sub">given back to the team every year</p>
+          <p class="quote" id="summary"></p>
+          <div class="row-actions">
+            <button class="pill ink" id="copy">Copy summary for email</button>
+            <a class="pill soft" href="#maths">See the maths <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></a>
+            <span class="fine" id="copied" hidden>Copied</span>
+          </div>
+          <p class="note" id="warn" hidden>The automated version takes longer than doing it by hand, so there is nothing to save. Check the minutes.</p>
+        </div>
+
+        <div class="widget">
+          <div class="w-head">
+            <span class="ico"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="M10 6.5V10l2.5 1.5"/></svg></span>
+            <div>
+              <div class="w-kicker">Start from an example or type your own</div>
+              <h2 class="w-title">The task</h2>
+            </div>
+          </div>
+          <div class="presets" id="presets">
+            <button type="button" data-p="invoice">Invoice data entry</button>
+            <button type="button" data-p="email">Email request logging</button>
+            <button type="button" data-p="report">Weekly report</button>
+          </div>
+          <div class="form">
+            <label class="full">Task name<input id="name" type="text"></label>
+            <label>Minutes per task now<input id="manual" type="number" min="0" step="0.5"></label>
+            <label>Minutes after automation<input id="auto" type="number" min="0" step="0.5"></label>
+            <div class="full field">How often, for each person
+              <span class="combo"><input id="freq" type="number" min="0" aria-label="How many times, for each person">
+                <span class="seg" id="unit" role="radiogroup" aria-label="How often"><button type="button" role="radio" aria-checked="true" data-v="day">a day</button><button type="button" role="radio" aria-checked="false" data-v="week">a week</button><button type="button" role="radio" aria-checked="false" data-v="month">a month</button></span>
+              </span>
+            </div>
+            <label>People doing it<input id="staff" type="number" min="0"></label>
+            <label>Working days a month<input id="days" type="number" min="1" max="31"></label>
+            <div class="full field">Monthly salary for each person
+              <span class="combo">
+                <span class="seg" id="cur" role="radiogroup" aria-label="Currency"><button type="button" role="radio" aria-checked="true" data-v="RM">RM</button><button type="button" role="radio" aria-checked="false" data-v="SGD">SGD</button><button type="button" role="radio" aria-checked="false" data-v="USD">USD</button></span>
+                <input id="salary" type="number" min="0" step="100" aria-label="Monthly salary for each person">
+              </span>
+            </div>
+            <label class="full">One-time cost to build it (optional)<input id="build" type="number" min="0" step="100" placeholder="0"></label>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <div class="grid">
-    <section class="card" aria-labelledby="h-task">
-      <div class="step">Step 1</div>
-      <h2 id="h-task">Describe the task</h2>
-      <div class="chips" id="presets">
-        <button class="chip" data-p="invoice">Invoice data entry</button>
-        <button class="chip" data-p="email">Email request logging</button>
-        <button class="chip" data-p="report">Weekly report</button>
+  <section class="band">
+    <div class="frame section">
+      <h2 class="h-lg" id="breakTitle">What those hours are worth</h2>
+      <p class="sub">The same answer, split into the numbers a manager asks for.</p>
+      <div class="panel breakdown">
+        <dl class="dl">
+          <div><dt>Salary cost saved a year</dt><dd id="rMoney">0</dd></div>
+          <div><dt>Same as this many full-time staff</dt><dd id="rFte">0</dd></div>
+          <div><dt>Less time on each task</dt><dd id="rCut">0%</dd></div>
+          <div><dt>Build cost pays for itself in</dt><dd id="rPayback">-</dd></div>
+        </dl>
+        <div class="bars">
+          <h3>Team hours on this task, each month</h3>
+          <div class="hbar"><span>Now</span><div class="rail"><div class="fill" id="bToday"></div></div><span class="v" id="vToday"></span></div>
+          <div class="hbar after"><span>Automated</span><div class="rail"><div class="fill" id="bAfter"></div></div><span class="v" id="vAfter"></span></div>
+        </div>
       </div>
-      <label>Task name<input id="name" type="text"></label>
-      <div class="row2">
-        <label>Minutes per task today<input id="manual" type="number" min="0" step="0.5"></label>
-        <label>Minutes per task after automation<input id="auto" type="number" min="0" step="0.5"></label>
-      </div>
-      <div class="row2">
-        <label>How often, per person
-          <div class="combo"><input id="freq" type="number" min="0"><select id="unit"><option value="day">per day</option><option value="week">per week</option><option value="month">per month</option></select></div>
-        </label>
-        <label>People doing this task<input id="staff" type="number" min="0"></label>
-      </div>
-      <div class="row2">
-        <label>Monthly salary per person
-          <div class="combo"><select id="cur"><option>RM</option><option>SGD</option><option>USD</option></select><input id="salary" type="number" min="0" step="100"></div>
-        </label>
-        <label>Working days per month<input id="days" type="number" min="1" max="31"></label>
-      </div>
-      <label>One-time cost to build the automation (optional)<input id="build" type="number" min="0" step="100" placeholder="0"></label>
-    </section>
+    </div>
+  </section>
 
-    <section class="card" aria-labelledby="h-result" aria-live="polite">
-      <div class="step">Step 2</div>
-      <h2 id="h-result">What your team gets back</h2>
-      <div class="big"><div class="n" id="rHours">0</div><div class="l">hours saved per year</div></div>
-      <div class="stats">
-        <div class="stat"><div class="n" id="rMoney">0</div><div class="l">salary cost saved per year</div></div>
-        <div class="stat"><div class="n" id="rFte">0</div><div class="l">full-time staff freed up</div></div>
-        <div class="stat"><div class="n" id="rCut">0%</div><div class="l">less time per task</div></div>
-        <div class="stat"><div class="n" id="rPayback">-</div><div class="l">payback period</div></div>
+  <section class="band" id="maths">
+    <div class="frame section">
+      <h2 class="h-lg">How the numbers are worked out</h2>
+      <p class="sub">Salary only, with no overheads, so the real saving is usually higher. That keeps the estimate on the safe side.</p>
+      <div class="panel">
+        <table>
+          <thead><tr><th>Number</th><th>How it is worked out</th></tr></thead>
+          <tbody>
+            <tr><td>Tasks a month</td><td>How often × people. “A day” uses your working days; “a week” uses 4.33 weeks a month.</td></tr>
+            <tr><td>Hours saved</td><td>(minutes now − minutes after automation) × tasks a month ÷ 60</td></tr>
+            <tr><td>Hourly cost</td><td>Monthly salary ÷ (working days × 8 hours)</td></tr>
+            <tr><td>Money saved</td><td>Hours saved × hourly cost</td></tr>
+            <tr><td>Full-time staff</td><td>Hours saved a month ÷ one person's working hours a month</td></tr>
+            <tr><td>Payback</td><td>Build cost ÷ money saved a month</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="bars">
-        <div class="muted" style="font-size:13px;margin-bottom:6px">Team hours spent on this task per month</div>
-        <div class="bar"><span>Today</span><div class="track"><div class="fill" id="bToday"></div></div><span class="v" id="vToday"></span></div>
-        <div class="bar after"><span>Automated</span><div class="track"><div class="fill" id="bAfter"></div></div><span class="v" id="vAfter"></span></div>
-      </div>
-      <p class="warn" id="warn" hidden></p>
-      <button class="btn primary" id="copy">Copy summary for email</button>
-      <span class="muted" id="copied" hidden>Copied</span>
-      <p class="summary" id="summary"></p>
-    </section>
-  </div>
-
-  <section class="card how" style="margin-top:16px">
-    <div class="step">How it works</div>
-    <h2>The maths, in plain words</h2>
-    <ul>
-      <li><b>Tasks per month</b> = how often × people. Per day uses your working days; per week uses 4.33 weeks a month.</li>
-      <li><b>Hours saved</b> = (minutes today − minutes after automation) × tasks per month ÷ 60.</li>
-      <li><b>Hourly cost</b> = monthly salary ÷ (working days × 8 hours).</li>
-      <li><b>Money saved</b> = hours saved × hourly cost. This counts salary only, with no overheads, so the real saving is usually higher.</li>
-      <li><b>Full-time staff freed up</b> = hours saved per month ÷ one person's working hours per month.</li>
-      <li><b>Payback period</b> = build cost ÷ money saved per month.</li>
-    </ul>
+    </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    Built by <a href="https://www.linkedin.com/in/afiq-izzudin-27aaa936b">Ahmad Afiq Izzudin</a>, Business Process &amp; Automation Analyst, with AI assistance.
-    <span id="srcWrap"> · <a id="src" href="#">View the code on GitHub</a></span>
+<footer class="band">
+  <div class="frame bar">
+    <span>© 2026 Ahmad Afiq Izzudin · Built with AI assistance</span>
+    <span><a href="https://www.linkedin.com/in/afiq-izzudin-27aaa936b">LinkedIn</a><a href="https://github.com/Afiqizzudinnn">GitHub</a></span>
   </div>
 </footer>
 
 <script>
 const $ = s => document.querySelector(s);
-const FIELDS = ['name', 'manual', 'auto', 'freq', 'unit', 'staff', 'salary', 'days', 'build', 'cur'];
+const INPUTS = ['name', 'manual', 'auto', 'freq', 'staff', 'salary', 'days', 'build'];
 const PRESETS = {
-  invoice: { name: 'Typing supplier invoices into the system', manual: 6, auto: 1, freq: 40, unit: 'day', staff: 2, salary: 3500, days: 22, build: 3000 },
-  email: { name: 'Logging email requests into an Excel tracker', manual: 3, auto: 0.5, freq: 50, unit: 'day', staff: 3, salary: 3200, days: 22, build: 1500 },
-  report: { name: 'Building the weekly sales report', manual: 180, auto: 10, freq: 2, unit: 'week', staff: 1, salary: 4500, days: 22, build: 2000 },
+  invoice: { name: 'Typing supplier invoices into the system', manual: 6, auto: 1, freq: 40, unit: 'day', staff: 2, salary: 3500, days: 22, build: 3000, cur: 'RM' },
+  email: { name: 'Logging email requests into an Excel tracker', manual: 3, auto: 0.5, freq: 50, unit: 'day', staff: 3, salary: 3200, days: 22, build: 1500, cur: 'RM' },
+  report: { name: 'Building the weekly sales report', manual: 180, auto: 10, freq: 2, unit: 'week', staff: 1, salary: 4500, days: 22, build: 2000, cur: 'RM' },
 };
 
 const num = id => Math.max(0, parseFloat($('#' + id).value) || 0);
 const fmt = (n, d = 0) => n.toLocaleString('en-MY', { minimumFractionDigits: d, maximumFractionDigits: d });
+const segValue = el => el.querySelector('[aria-checked="true"]').dataset.v;
+const segSet = (el, v) => el.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', b.dataset.v === v));
+const clearPreset = () => document.querySelectorAll('#presets button').forEach(b => b.setAttribute('aria-pressed', 'false'));
 
 function applyPreset(key) {
   const p = PRESETS[key];
-  FIELDS.forEach(f => { if (f in p) $('#' + f).value = p[f]; });
-  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.p === key));
+  INPUTS.forEach(f => { $('#' + f).value = p[f]; });
+  segSet($('#unit'), p.unit);
+  segSet($('#cur'), p.cur);
+  document.querySelectorAll('#presets button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === key));
   update();
 }
 
 function update() {
   const manual = num('manual'), auto = num('auto'), freq = num('freq'), staff = num('staff');
-  const salary = num('salary'), days = num('days') || 22, build = num('build'), cur = $('#cur').value;
+  const salary = num('salary'), days = num('days') || 22, build = num('build'), cur = segValue($('#cur'));
   const name = $('#name').value.trim() || 'this task';
-  const perMonth = { day: days, week: 52 / 12, month: 1 }[$('#unit').value];
+  const perMonth = { day: days, week: 52 / 12, month: 1 }[segValue($('#unit'))];
 
   const tasks = freq * perMonth * staff;
   const saved = Math.max(manual - auto, 0);
-  const hoursToday = manual * tasks / 60, hoursAfter = Math.min(auto, manual) * tasks / 60;
+  const hoursNow = manual * tasks / 60, hoursAfter = Math.min(auto, manual) * tasks / 60;
   const hoursMonth = saved * tasks / 60, hoursYear = hoursMonth * 12;
-  const hourly = salary / (days * 8);
-  const moneyYear = hoursYear * hourly;
+  const moneyYear = hoursYear * salary / (days * 8);
   const fte = hoursMonth / (days * 8);
   const cut = manual ? saved / manual : 0;
 
-  let payback = '-';
+  let payback = '-', paybackWords = '';
   if (build > 0 && moneyYear > 0) {
     const months = build / (moneyYear / 12);
-    payback = months < 1 ? `${Math.max(1, Math.round(months * 52 / 12))} wk` : `${fmt(months, 1)} mo`;
-  } else if (build > 0) payback = 'Never';
+    payback = months < 1 ? `${Math.max(1, Math.round(months * 52 / 12))} weeks` : `${fmt(months, 1)} months`;
+    paybackWords = ` The ${cur} ${fmt(build)} build cost pays for itself in about ${payback}.`;
+  } else if (build > 0) payback = 'never';
 
   $('#rHours').textContent = fmt(hoursYear);
+  $('#breakTitle').textContent = `What ${fmt(hoursYear)} hours a year is worth`;
   $('#rMoney').textContent = `${cur} ${fmt(moneyYear)}`;
   $('#rFte').textContent = fmt(fte, fte < 0.1 && fte > 0 ? 2 : 1);
   $('#rCut').textContent = `${fmt(cut * 100)}%`;
   $('#rPayback').textContent = payback;
 
-  const max = Math.max(hoursToday, 1);
-  $('#bToday').style.width = `${hoursToday / max * 100}%`;
+  const max = Math.max(hoursNow, 1);
+  $('#bToday').style.width = `${hoursNow / max * 100}%`;
   $('#bAfter').style.width = `${hoursAfter / max * 100}%`;
-  $('#vToday').textContent = `${fmt(hoursToday)} h`;
+  $('#vToday').textContent = `${fmt(hoursNow)} h`;
   $('#vAfter').textContent = `${fmt(hoursAfter)} h`;
+  $('#warn').hidden = auto <= manual;
 
-  const warn = $('#warn');
-  warn.hidden = auto <= manual;
-  warn.textContent = 'The automated version takes longer than doing it by hand, so there is nothing to save. Check the minutes.';
-
-  let text = `Automating "${name}" would save about ${fmt(hoursYear)} hours and ${cur} ${fmt(moneyYear)} in salary cost a year, the same as ${fmt(fte, 1)} full-time staff. Each task drops from ${fmt(manual, manual % 1 ? 1 : 0)} min to ${fmt(auto, auto % 1 ? 1 : 0)} min (${fmt(cut * 100)}% less time).`;
-  if (build > 0 && moneyYear > 0) text += ` The ${cur} ${fmt(build)} build cost pays for itself in about ${payback.replace('wk', 'weeks').replace('mo', 'months')}.`;
-  text += ' (Estimate, salary cost only.)';
-  $('#summary').textContent = text;
+  const m = v => fmt(v, v % 1 ? 1 : 0);
+  $('#summary').textContent = `Automating "${name}" would save about ${fmt(hoursYear)} hours and ${cur} ${fmt(moneyYear)} in salary cost a year, the same as ${fmt(fte, 1)} full-time staff. Each task drops from ${m(manual)} min to ${m(auto)} min (${fmt(cut * 100)}% less time).${paybackWords} (Estimate, salary cost only.)`;
 }
 
-FIELDS.forEach(f => $('#' + f).addEventListener('input', () => {
-  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+INPUTS.forEach(f => $('#' + f).addEventListener('input', () => { clearPreset(); update(); }));
+['#unit', '#cur'].forEach(id => $(id).addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  segSet($(id), b.dataset.v);
+  clearPreset();
   update();
 }));
-document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => applyPreset(c.dataset.p)));
+document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => applyPreset(b.dataset.p)));
 
 $('#copy').addEventListener('click', async () => {
   const text = $('#summary').textContent;
@@ -247,12 +334,6 @@ $('#copy').addEventListener('click', async () => {
   $('#copied').hidden = false;
   setTimeout(() => { $('#copied').hidden = true; }, 2000);
 });
-
-(() => {
-  const host = location.hostname, repo = location.pathname.split('/').filter(Boolean)[0];
-  if (host.endsWith('.github.io') && repo) $('#src').href = `https://github.com/${host.split('.')[0]}/${repo}`;
-  else $('#srcWrap').hidden = true;
-})();
 
 applyPreset('invoice');
 </script>
