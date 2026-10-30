@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automation ROI Calculator</title>
+<meta name="description" content="Estimate the hours and money a team saves by automating one repetitive task.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #f0f3f7; --text: #152232; --muted: #5d6b7b; --border: #dfe4ea;
+    --primary: #1f3a5f; --primary-ink: #ffffff; --primary-soft: #e7eef7;
+    --good: #0e7a55; --good-soft: #e3f3ec; --warn: #a15c07; --warn-soft: #fdf1df; --changed: #fff1b8;
+    --radius: 12px; --shadow: 0 1px 2px rgba(16,24,40,.05), 0 4px 16px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e131a; --surface: #151c25; --surface-2: #1b2430; --text: #e5eaf0; --muted: #98a5b4; --border: #27323f;
+      --primary: #9dbce3; --primary-ink: #0e131a; --primary-soft: #1d2a3a;
+      --good: #53c79a; --good-soft: #15302a; --warn: #e7a54a; --warn-soft: #33270f; --changed: #4b3f10; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 15px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  header.top { border-bottom: 1px solid var(--border); background: var(--surface); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; min-height: 56px; gap: 12px; flex-wrap: wrap; }
+  .brand { font-weight: 700; color: var(--text); text-decoration: none; font-size: 14px; }
+  .brand span { color: var(--muted); font-weight: 500; }
+  nav.tools { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.tools a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; }
+  nav.tools a:hover { color: var(--text); }
+  nav.tools a[aria-current] { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  .hero { padding: 40px 0 24px; }
+  .hero h1 { font-size: 32px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.5px; }
+  .hero p { margin: 0; color: var(--muted); font-size: 17px; max-width: 660px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .badge { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+  .step { font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
+  .card h2 { font-size: 18px; margin: 0 0 14px; }
+  .btn { font: inherit; font-weight: 600; font-size: 14px; border-radius: 8px; padding: 10px 16px; border: 1px solid transparent; cursor: pointer; }
+  .btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .btn.ghost { background: transparent; border-color: var(--border); color: var(--text); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .stat { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+  .stat .n { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+  .stat .l { font-size: 13px; color: var(--muted); }
+  .muted { color: var(--muted); }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 13px; }
+  footer a { color: var(--primary); }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .grid .card { margin-bottom: 0; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .grid .stats { grid-template-columns: 1fr 1fr; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chip { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+  input, select { font: inherit; font-weight: 400; width: 100%; margin-top: 4px; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+  .combo { display: flex; gap: 6px; }
+  .combo select { width: auto; flex: 0 0 auto; }
+  .big { background: var(--good-soft); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
+  .big .n { font-size: 40px; font-weight: 700; color: var(--good); letter-spacing: -1px; line-height: 1.1; }
+  .big .l { color: var(--muted); }
+  .bars { margin: 4px 0 16px; }
+  .bar { display: grid; grid-template-columns: 70px 1fr 90px; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 6px; }
+  .bar .track { background: var(--surface-2); border-radius: 6px; height: 14px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 6px; background: var(--muted); transition: width .3s; }
+  .bar.after .fill { background: var(--good); }
+  .bar .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .warn { background: var(--warn-soft); color: var(--warn); padding: 10px 12px; border-radius: 8px; font-size: 13px; }
+  .summary { background: var(--surface-2); border-radius: 8px; padding: 12px; font-size: 14px; margin: 12px 0 0; }
+  .how ul { margin: 0; padding-left: 18px; }
+  .how li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="https://www.linkedin.com/in/afiq-izzudin-27aaa936b">Afiq Izzudin <span>/ Office Toolkit</span></a>
+    <nav class="tools" aria-label="Tools">
+      <a href="../excel-data-cleaner/">Data Cleaner</a>
+      <a href="../excel-report-merger/">Report Merger</a>
+      <a href="../automation-roi-calculator/" aria-current="page">ROI Calculator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Automation ROI Calculator</h1>
+    <p>Is this task worth automating? Enter how long it takes today and see the hours and money your team gets back every year.</p>
+    <div class="badges"><span class="badge">Free</span><span class="badge">No sign-up</span><span class="badge">Nothing leaves your browser</span></div>
+  </section>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="h-task">
+      <div class="step">Step 1</div>
+      <h2 id="h-task">Describe the task</h2>
+      <div class="chips" id="presets">
+        <button class="chip" data-p="invoice">Invoice data entry</button>
+        <button class="chip" data-p="email">Email request logging</button>
+        <button class="chip" data-p="report">Weekly report</button>
+      </div>
+      <label>Task name<input id="name" type="text"></label>
+      <div class="row2">
+        <label>Minutes per task today<input id="manual" type="number" min="0" step="0.5"></label>
+        <label>Minutes per task after automation<input id="auto" type="number" min="0" step="0.5"></label>
+      </div>
+      <div class="row2">
+        <label>How often, per person
+          <div class="combo"><input id="freq" type="number" min="0"><select id="unit"><option value="day">per day</option><option value="week">per week</option><option value="month">per month</option></select></div>
+        </label>
+        <label>People doing this task<input id="staff" type="number" min="0"></label>
+      </div>
+      <div class="row2">
+        <label>Monthly salary per person
+          <div class="combo"><select id="cur"><option>RM</option><option>SGD</option><option>USD</option></select><input id="salary" type="number" min="0" step="100"></div>
+        </label>
+        <label>Working days per month<input id="days" type="number" min="1" max="31"></label>
+      </div>
+      <label>One-time cost to build the automation (optional)<input id="build" type="number" min="0" step="100" placeholder="0"></label>
+    </section>
+
+    <section class="card" aria-labelledby="h-result" aria-live="polite">
+      <div class="step">Step 2</div>
+      <h2 id="h-result">What your team gets back</h2>
+      <div class="big"><div class="n" id="rHours">0</div><div class="l">hours saved per year</div></div>
+      <div class="stats">
+        <div class="stat"><div class="n" id="rMoney">0</div><div class="l">salary cost saved per year</div></div>
+        <div class="stat"><div class="n" id="rFte">0</div><div class="l">full-time staff freed up</div></div>
+        <div class="stat"><div class="n" id="rCut">0%</div><div class="l">less time per task</div></div>
+        <div class="stat"><div class="n" id="rPayback">-</div><div class="l">payback period</div></div>
+      </div>
+      <div class="bars">
+        <div class="muted" style="font-size:13px;margin-bottom:6px">Team hours spent on this task per month</div>
+        <div class="bar"><span>Today</span><div class="track"><div class="fill" id="bToday"></div></div><span class="v" id="vToday"></span></div>
+        <div class="bar after"><span>Automated</span><div class="track"><div class="fill" id="bAfter"></div></div><span class="v" id="vAfter"></span></div>
+      </div>
+      <p class="warn" id="warn" hidden></p>
+      <button class="btn primary" id="copy">Copy summary for email</button>
+      <span class="muted" id="copied" hidden>Copied</span>
+      <p class="summary" id="summary"></p>
+    </section>
+  </div>
+
+  <section class="card how" style="margin-top:16px">
+    <div class="step">How it works</div>
+    <h2>The maths, in plain words</h2>
+    <ul>
+      <li><b>Tasks per month</b> = how often × people. Per day uses your working days; per week uses 4.33 weeks a month.</li>
+      <li><b>Hours saved</b> = (minutes today − minutes after automation) × tasks per month ÷ 60.</li>
+      <li><b>Hourly cost</b> = monthly salary ÷ (working days × 8 hours).</li>
+      <li><b>Money saved</b> = hours saved × hourly cost. This counts salary only, with no overheads, so the real saving is usually higher.</li>
+      <li><b>Full-time staff freed up</b> = hours saved per month ÷ one person's working hours per month.</li>
+      <li><b>Payback period</b> = build cost ÷ money saved per month.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built by <a href="https://www.linkedin.com/in/afiq-izzudin-27aaa936b">Ahmad Afiq Izzudin</a>, Business Process &amp; Automation Analyst, with AI assistance.
+    <span id="srcWrap"> · <a id="src" href="#">View the code on GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const FIELDS = ['name', 'manual', 'auto', 'freq', 'unit', 'staff', 'salary', 'days', 'build', 'cur'];
+const PRESETS = {
+  invoice: { name: 'Typing supplier invoices into the system', manual: 6, auto: 1, freq: 40, unit: 'day', staff: 2, salary: 3500, days: 22, build: 3000 },
+  email: { name: 'Logging email requests into an Excel tracker', manual: 3, auto: 0.5, freq: 50, unit: 'day', staff: 3, salary: 3200, days: 22, build: 1500 },
+  report: { name: 'Building the weekly sales report', manual: 180, auto: 10, freq: 2, unit: 'week', staff: 1, salary: 4500, days: 22, build: 2000 },
+};
+
+const num = id => Math.max(0, parseFloat($('#' + id).value) || 0);
+const fmt = (n, d = 0) => n.toLocaleString('en-MY', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function applyPreset(key) {
+  const p = PRESETS[key];
+  FIELDS.forEach(f => { if (f in p) $('#' + f).value = p[f]; });
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.p === key));
+  update();
+}
+
+function update() {
+  const manual = num('manual'), auto = num('auto'), freq = num('freq'), staff = num('staff');
+  const salary = num('salary'), days = num('days') || 22, build = num('build'), cur = $('#cur').value;
+  const name = $('#name').value.trim() || 'this task';
+  const perMonth = { day: days, week: 52 / 12, month: 1 }[$('#unit').value];
+
+  const tasks = freq * perMonth * staff;
+  const saved = Math.max(manual - auto, 0);
+  const hoursToday = manual * tasks / 60, hoursAfter = Math.min(auto, manual) * tasks / 60;
+  const hoursMonth = saved * tasks / 60, hoursYear = hoursMonth * 12;
+  const hourly = salary / (days * 8);
+  const moneyYear = hoursYear * hourly;
+  const fte = hoursMonth / (days * 8);
+  const cut = manual ? saved / manual : 0;
+
+  let payback = '-';
+  if (build > 0 && moneyYear > 0) {
+    const months = build / (moneyYear / 12);
+    payback = months < 1 ? `${Math.max(1, Math.round(months * 52 / 12))} wk` : `${fmt(months, 1)} mo`;
+  } else if (build > 0) payback = 'Never';
+
+  $('#rHours').textContent = fmt(hoursYear);
+  $('#rMoney').textContent = `${cur} ${fmt(moneyYear)}`;
+  $('#rFte').textContent = fmt(fte, fte < 0.1 && fte > 0 ? 2 : 1);
+  $('#rCut').textContent = `${fmt(cut * 100)}%`;
+  $('#rPayback').textContent = payback;
+
+  const max = Math.max(hoursToday, 1);
+  $('#bToday').style.width = `${hoursToday / max * 100}%`;
+  $('#bAfter').style.width = `${hoursAfter / max * 100}%`;
+  $('#vToday').textContent = `${fmt(hoursToday)} h`;
+  $('#vAfter').textContent = `${fmt(hoursAfter)} h`;
+
+  const warn = $('#warn');
+  warn.hidden = auto <= manual;
+  warn.textContent = 'The automated version takes longer than doing it by hand, so there is nothing to save. Check the minutes.';
+
+  let text = `Automating "${name}" would save about ${fmt(hoursYear)} hours and ${cur} ${fmt(moneyYear)} in salary cost a year, the same as ${fmt(fte, 1)} full-time staff. Each task drops from ${fmt(manual, manual % 1 ? 1 : 0)} min to ${fmt(auto, auto % 1 ? 1 : 0)} min (${fmt(cut * 100)}% less time).`;
+  if (build > 0 && moneyYear > 0) text += ` The ${cur} ${fmt(build)} build cost pays for itself in about ${payback.replace('wk', 'weeks').replace('mo', 'months')}.`;
+  text += ' (Estimate, salary cost only.)';
+  $('#summary').textContent = text;
+}
+
+FIELDS.forEach(f => $('#' + f).addEventListener('input', () => {
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+  update();
+}));
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => applyPreset(c.dataset.p)));
+
+$('#copy').addEventListener('click', async () => {
+  const text = $('#summary').textContent;
+  try { await navigator.clipboard.writeText(text); }
+  catch { const r = document.createRange(); r.selectNodeContents($('#summary')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); }
+  $('#copied').hidden = false;
+  setTimeout(() => { $('#copied').hidden = true; }, 2000);
+});
+
+(() => {
+  const host = location.hostname, repo = location.pathname.split('/').filter(Boolean)[0];
+  if (host.endsWith('.github.io') && repo) $('#src').href = `https://github.com/${host.split('.')[0]}/${repo}`;
+  else $('#srcWrap').hidden = true;
+})();
+
+applyPreset('invoice');
+</script>
+</body>
+</html>
