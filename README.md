@@ -53,10 +53,27 @@ Result: about **1,760 hours** and **RM 35,000** saved a year, the same as 0.8 of
 
 ## How it is built
 
-- One `index.html` file with plain HTML, CSS and JavaScript. No libraries, no server, no install.
-- Nothing you type leaves your browser.
+No framework, no libraries, no build step and no server. Plain HTML, CSS and JavaScript modules, and nothing you type leaves your browser. The maths is a pure function, kept apart from the page code.
 
-To run it on your own computer, download `index.html` and open it in any browser.
+```
+index.html              page markup
+css/theme.css           design system shared by the Office Toolkit
+css/roi.css             styles only this tool uses
+js/page-transition.js   slide between the toolkit pages
+js/roi.js               the ROI maths
+js/presets.js           the example tasks
+js/main.js              page code: inputs, results, copy
+```
+## Run it locally
+
+The scripts are JavaScript modules, so serve the folder with any local web server instead of double-clicking `index.html`:
+
+```bash
+python -m http.server 8000
+```
+
+Then open http://localhost:8000. Internet is needed once to load the fonts.
+
 
 ## About
 
